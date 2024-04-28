@@ -3,7 +3,7 @@
 #include<random>
 
 /** Implement the sorting algorithms below.
- Don't change the main function. You can define helper functions  
+ Don't change the main function. You can define helper functions
  if you need to. 
  If you run the program now, it shoulprint : sorted:0
  As you implement the sorting algorithms,
@@ -13,123 +13,152 @@
   your program should display: sorted:5
 **/
 
-template<typename T>
+template <typename T>
+void swap (T& a, T& b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+template <typename T>
+void check (const std::vector<T> v){
+    for (T el : v)
+    std::cout<<el<<"\n";
+}
+
+template <typename T>
 void bubbleSort(std::vector<T>& v)
 {
- bool swapped;
- do {
-  swapped=false;
-  for (size_t i=0; i<v.size()-1;++i) {
-   if (v[i] > v[i+1]) { 
-   std::swap(v[i],v[i+1]);
-    swapped= true;
-   }
-  }
- }
- while(swapped);     
+    bool swapped = true;
+    while (swapped)
+    {
+        swapped = false;
+        for (int i=0; i < v.size()-1; i++){
+            if (v.at(i) > v.at(i+1))
+            {
+                swap (v[i],v[i+1]);      
+                swapped = true;   
+            }
+        }
+    } 
 }
 
 template <typename T>
 void insertionSort(std::vector<T>& v)
 {
-for(size_t i=1; i<v.size(); ++i) {
- T value= v[i];
- int j= i-1;
- while(j >= 0 && v[j] > value) { 
-  v[j+1] = v[j];
-  j--;
- }
- v[j+1]= value;
+    for (size_t i = 1; i < v.size(); i++)
+    {
+        int rightpo = i;
+        int prevpo = rightpo -1;
+
+        while (prevpo >= 0 ) {
+
+            if(v.at(rightpo) < v.at(prevpo)) {
+                swap (v[rightpo],v[prevpo]);
+                rightpo = prevpo;
+            }
+
+            --prevpo;
+        }
+    }
 }
-}
+
 
 template <typename T>
 void selectionSort (std::vector<T>& v)
 {
-for(size_t i=0; i<v.size()-1; ++i) {
- size_t MinIndex= i;
- for(size_t j= i+1; j < v.size(); ++j) {
-  if(v[j] < v[MinIndex]) {
-   MinIndex= j;
-  }
- }
- std:: swap(v[i],v[MinIndex]);
-}
+    for (size_t i = 0; i < v.size()-1; i++)
+    {
+        int  smallest = i;
+        for (size_t j = i+1; j < v.size() ; j++)
+        {
+
+            
+            if (v.at(smallest) > v.at(j) ){
+                smallest = j;
+            }
+        }
+        
+        if (smallest != i)
+            swap(v[smallest],v[i]);
+    }
+    
 }
 
 template <typename T>
-int partition(std::vector<T>& v, int low, int high) {
-    T pivot = v[high];
-    int i = low - 1;
-    for (int j = low; j < high; ++j) {
-        if (v[j] <= pivot) {
-            ++i;
-            std::swap(v[i], v[j]);
+int partition(std::vector<T>& v, int lower, int higher) {
+    int pivot = higher; 
+    int left = lower;  
+
+    for (int right = lower; right < higher; right++) {
+        if (v[right] < v[pivot]) {
+            swap(v[left], v[right]); 
+            left++;                  
         }
     }
-    std::swap(v[i + 1], v[high]); 
-    return i + 1;
+
+    swap(v[left], v[pivot]); 
+    return left;             
 }
 
 template <typename T>
-void quickSortHelper(std::vector<T>& v, int low, int high) {
-    if (low < high) {
-        int pi = partition(v, low, high);
-        quickSortHelper(v, low, pi - 1);
-        quickSortHelper(v, pi + 1, high);
+void quickSort(std::vector<T>& v, int lower, int higher) {
+    if (lower < higher) {
+        int pivot = partition(v, lower, higher); 
+
+        quickSort(v, lower, pivot - 1); 
+        quickSort(v, pivot + 1, higher); 
     }
 }
 
 template <typename T>
 void quickSort(std::vector<T>& v) {
-    quickSortHelper(v, 0, v.size() - 1);
+    quickSort(v, 0, v.size() - 1); 
 }
+
 template <typename T>
-void merge(std::vector<T>& v, int k, int t, int m) {
-    int n1 = t - k + 1;
-    int n2 = m - t;
-    std::vector<T> L(n1), R(n2);
+void merge(std::vector<T>& v, int left, int mid, int right) {
+    int n1 = mid - left + 1; 
+    int n2 = right - mid;    
+    std::vector<T> L(n1);
+    std::vector<T> R(n2);
+    for (int i = 0; i < n1; ++i)
+        L[i] = v[left + i];
+    for (int j = 0; j < n2; ++j)
+        R[j] = v[mid + 1 + j];
+    int i = 0; 
+    int j = 0; 
+    int k = left; 
 
-    for (int i = 0; i < n1; ++i) {
-        L[i] = v[k + i];
-    }
-
-    for (int j = 0; j < n2; ++j) {
-        R[j] = v[t + 1 + j];
-    }
-
-    int i = 0, j = 0, r = k;
     while (i < n1 && j < n2) {
         if (L[i] <= R[j]) {
-            v[r] = L[i];
+            v[k] = L[i];
             ++i;
         } else {
-            v[r] = R[j];
+            v[k] = R[j];
             ++j;
         }
-        ++r;
+        ++k;
     }
-
     while (i < n1) {
-        v[r] = L[i];
+        v[k] = L[i];
         ++i;
-        ++r;
+        ++k;
     }
-
     while (j < n2) {
-        v[r] = R[j];
+        v[k] = R[j];
         ++j;
-        ++r;
+        ++k;
     }
 }
 
 template <typename T>
-void mergeSort(std::vector<T>& v, int k, int t) {
-    if (k < t) {
-        int m = k + (t - k) / 2;
-        mergeSort(v, k, m);
-        mergeSort(v, m + 1, t);
-        merge(v, k, t, m); 
+void mergeSort(std::vector<T>& v, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2; 
+        mergeSort(v, left, mid);
+        mergeSort(v, mid + 1, right);
+        merge(v, left, mid, right);
     }
 }
 
@@ -137,9 +166,6 @@ template <typename T>
 void mergeSort(std::vector<T>& v) {
     mergeSort(v, 0, v.size() - 1);
 }
-
-
-
 template<typename T>
 bool isSorted(const std::vector<T>& v )
 {
@@ -147,6 +173,8 @@ bool isSorted(const std::vector<T>& v )
       if(v.at(i)>v.at(i+1)) return false;
     return true;
 }
+
+
 int main()
 {
  std::vector<int> v1{23,45,12,7,6,9,3};
@@ -161,14 +189,13 @@ int main()
  mergeSort(v5);
  std::vector<std::vector<int>> vectors;
  vectors.push_back(v1);
-  vectors.push_back(v2);
-  vectors.push_back(v3);
-  vectors.push_back(v4);
-  vectors.push_back(v5);
+ vectors.push_back(v2);
+ vectors.push_back(v3);
+ vectors.push_back(v4);
+ vectors.push_back(v5);
  int sorted=0;
  for (auto v: vectors)
      if( isSorted(v)) ++sorted;
  std::cout<<"sorted :"<<sorted<<"\n";
-
+//  check (v2);
 }
-
